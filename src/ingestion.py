@@ -1,10 +1,12 @@
 import hashlib
 import os
-from dataclasses import asdict, dataclass
+import sys
+from dataclasses import dataclass
 from typing import Any
+
+import tiktoken
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import tiktoken
 
 
 @dataclass
@@ -41,7 +43,9 @@ class ProductionIngestionPipeline:
     def _count_tokens(self, text: str) -> int:
         return len(self.tokenizer.encode(text))
 
-    def _generate_chunk_id(self, doc_name: str, page_num: int, chunk_index: int, text: str) -> str:
+    def _generate_chunk_id(
+        self, doc_name: str, page_num: int, chunk_index: int, text: str
+    ) -> str:
         """Generates a deterministic hash for deduplication and idempotent upserts."""
         raw_key = f"{doc_name}:{page_num}:{chunk_index}:{text[:50]}"
         return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()[:16]
@@ -70,7 +74,9 @@ class ProductionIngestionPipeline:
 
             for idx, chunk_text in enumerate(sub_chunks):
                 token_count = self._count_tokens(chunk_text)
-                chunk_id = self._generate_chunk_id(doc_filename, page_number, idx, chunk_text)
+                chunk_id = self._generate_chunk_id(
+                    doc_filename, page_number, idx, chunk_text
+                )
 
                 metadata = {
                     "source": doc_filename,
@@ -88,11 +94,15 @@ class ProductionIngestionPipeline:
                     )
                 )
 
-        print(f"[Ingestion] Successfully generated {len(processed_chunks)} token-aware chunks.")
+        print(
+            f"[Ingestion] Successfully generated {len(processed_chunks)} token-aware chunks."
+        )
         return processed_chunks
 
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     pdf_path = os.path.join("data", "annual_report.pdf")
     pipeline = ProductionIngestionPipeline(chunk_size=500, chunk_overlap=75)
     chunks = pipeline.process_pdf(pdf_path)

@@ -2,9 +2,9 @@ import json
 import os
 import pickle
 import sys
-import time
 from dataclasses import dataclass
 from typing import Any
+
 import psycopg2
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
@@ -43,7 +43,9 @@ class HybridRetriever:
         # Load persisted BM25 index
         bm25_file = os.path.join("data", "bm25_index.pkl")
         if not os.path.exists(bm25_file):
-            raise FileNotFoundError(f"BM25 index not found at {bm25_file}. Run indexer.py first.")
+            raise FileNotFoundError(
+                f"BM25 index not found at {bm25_file}. Run indexer.py first."
+            )
 
         with open(bm25_file, "rb") as f:
             payload = pickle.load(f)
@@ -57,7 +59,7 @@ class HybridRetriever:
         if register_vector:
             try:
                 register_vector(conn)
-            except Exception:
+            except psycopg2.Error:
                 pass
         return conn
 
@@ -101,7 +103,9 @@ class HybridRetriever:
         scores = self.bm25.get_scores(tokens)
 
         # Get top-k indices sorted descending by BM25 score
-        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
+        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[
+            :top_k
+        ]
 
         return [
             SearchResult(
@@ -115,7 +119,9 @@ class HybridRetriever:
             if scores[i] > 0.0
         ]
 
-    def search_hybrid(self, query: str, top_k: int = 10, rrf_k: int = 60) -> list[SearchResult]:
+    def search_hybrid(
+        self, query: str, top_k: int = 10, rrf_k: int = 60
+    ) -> list[SearchResult]:
         """
         Combines Dense and Sparse search results using Reciprocal Rank Fusion (RRF).
         Formula: RRF_score(d) = sum(1 / (k + rank_i))
@@ -128,17 +134,23 @@ class HybridRetriever:
 
         # 1. Score dense rankings
         for rank, res in enumerate(dense_results, start=1):
-            rrf_scores[res.chunk_id] = rrf_scores.get(res.chunk_id, 0.0) + (1.0 / (rrf_k + rank))
+            rrf_scores[res.chunk_id] = rrf_scores.get(res.chunk_id, 0.0) + (
+                1.0 / (rrf_k + rank)
+            )
             doc_store[res.chunk_id] = res
 
         # 2. Score sparse rankings
         for rank, res in enumerate(sparse_results, start=1):
-            rrf_scores[res.chunk_id] = rrf_scores.get(res.chunk_id, 0.0) + (1.0 / (rrf_k + rank))
+            rrf_scores[res.chunk_id] = rrf_scores.get(res.chunk_id, 0.0) + (
+                1.0 / (rrf_k + rank)
+            )
             if res.chunk_id not in doc_store:
                 doc_store[res.chunk_id] = res
 
         # 3. Sort by combined RRF score
-        sorted_ids = sorted(rrf_scores.keys(), key=lambda cid: rrf_scores[cid], reverse=True)[:top_k]
+        sorted_ids = sorted(
+            rrf_scores.keys(), key=lambda cid: rrf_scores[cid], reverse=True
+        )[:top_k]
 
         fused_results: list[SearchResult] = []
         for cid in sorted_ids:

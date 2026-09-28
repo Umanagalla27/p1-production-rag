@@ -1,0 +1,38 @@
+[
+  {
+    "id": "q1",
+    "question": "What are the legal disputes and arbitration risks regarding driver classification as independent contractors?",
+    "target_pages": [15, 16, 131],
+    "category": "legal_risk"
+  },
+  {
+    "id": "q2",
+    "question": "What happened with the acquisition of Drizly and Transplace regarding financial reporting internal controls?",
+    "target_pages": [149],
+    "category": "financial_reporting"
+  },
+  {
+    "id": "q3",
+    "question": "What are the regulatory risks associated with Transportation Network Company TNC regulations?",
+    "target_pages": [8, 9],
+    "category": "regulatory"
+  },
+  {
+    "id": "q4",
+    "question": "How did the COVID-19 pandemic volatility impact capital markets and stock prices?",
+    "target_pages": [15],
+    "category": "macro_risk"
+  },
+  {
+    "id": "q5",
+    "question": "What antitrust, ADA, or securities class action litigation claims is the company facing?",
+    "target_pages": [129, 130],
+    "category": "litigation"
+  },
+  {
+    "id": "q6",
+    "question": "What is the annual report filing form and reporting requirements under Section 13 or 15d?",
+    "target_pages": [1, 2],
+    "category": "compliance"
+  }
+]

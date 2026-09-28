@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+
 from sentence_transformers import CrossEncoder
 
 # Ensure project root is on sys.path
@@ -17,7 +18,9 @@ class ProductionReranker:
         print(f"[Reranker] Loading Cross-Encoder model: {model_name}...")
         self.model = CrossEncoder(model_name)
 
-    def rerank(self, query: str, candidates: list[SearchResult], top_k: int = 5) -> list[SearchResult]:
+    def rerank(
+        self, query: str, candidates: list[SearchResult], top_k: int = 5
+    ) -> list[SearchResult]:
         if not candidates:
             return []
 
@@ -42,6 +45,8 @@ class ProductionReranker:
 
         reranked.sort(key=lambda x: x.score, reverse=True)
         duration_ms = (time.perf_counter() - start) * 1000
-        print(f"[Reranker] Rescored {len(candidates)} candidates down to {top_k} in {duration_ms:.1f}ms.")
+        print(
+            f"[Reranker] Rescored {len(candidates)} candidates down to {top_k} in {duration_ms:.1f}ms."
+        )
 
         return reranked[:top_k]

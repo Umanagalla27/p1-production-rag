@@ -1,0 +1,26 @@
+[
+  {
+    "method": "dense_only",
+    "hit_rate_at_3": 100.0,
+    "mrr": 0.694,
+    "avg_latency_ms": 684.6
+  },
+  {
+    "method": "sparse_only",
+    "hit_rate_at_3": 66.67,
+    "mrr": 0.583,
+    "avg_latency_ms": 13.4
+  },
+  {
+    "method": "hybrid_rrf",
+    "hit_rate_at_3": 83.33,
+    "mrr": 0.639,
+    "avg_latency_ms": 431.7
+  },
+  {
+    "method": "hybrid_reranked",
+    "hit_rate_at_3": 100.0,
+    "mrr": 0.889,
+    "avg_latency_ms": 4109.2
+  }
+]

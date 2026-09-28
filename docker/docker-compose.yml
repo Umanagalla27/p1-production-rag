@@ -1,0 +1,26 @@
+services:
+  pgvector-db:
+    image: pgvector/pgvector:pg16
+    container_name: p1-pgvector
+    environment:
+      POSTGRES_USER: uma
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rag_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uma -d rag_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: p1-redis
+    ports:
+      - "6381:6379" # Port 6381 to prevent conflict with P0 (6380)
+
+volumes:
+  pgvector_data:
